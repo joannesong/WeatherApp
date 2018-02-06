@@ -4,11 +4,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
-import java.io.IOException;
-
-import nyc.c4q.weatherapp.model.Forcast;
 import nyc.c4q.weatherapp.network.API;
-import okhttp3.ResponseBody;
+import nyc.c4q.weatherapp.model.WeatherPOJO;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,20 +29,20 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         API api =retrofit.create(API.class);
-        Call<Forcast> call = api.getForcast(id,secret);
-        call.enqueue(new Callback<Forcast>() {
+        Call<WeatherPOJO> call = api.getForcast(id,secret);
+        call.enqueue(new Callback<WeatherPOJO>() {
             @Override
-            public void onResponse(Call<Forcast> call, Response<Forcast> response) {
+            public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
                if (response.isSuccessful()){
-                   Forcast forcast =response.body();
-//                       Log.e("Successessful", forcast.getResponse().get(0).getPeriods()[0].getAvgTempF());
+                   WeatherPOJO forcast =response.body();
+                       Log.e("Successessful", forcast.getResponse().get(0).getPeriods().get(0).getIcon()+"");
                }
 
 
             }
 
             @Override
-            public void onFailure(Call<Forcast> call, Throwable t) {
+            public void onFailure(Call<WeatherPOJO> call, Throwable t) {
                 Log.e("Failed",t.getMessage());
             }
         });

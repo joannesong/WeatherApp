@@ -1,51 +1,22 @@
 package nyc.c4q.weatherapp.model;
 
-/**
- * Created by jervon.arnoldd on 2/5/18.
- */
+import java.util.List;
 
 public class Response {
-    private Periods[] periods;
-
+    private Profile profile;
+    private List<Periods> periods;
     private String interval;
 
-    private Profile profile;
-
-    public Periods[] getPeriods ()
-    {
-        return periods;
-    }
-
-    public void setPeriods (Periods[] periods)
-    {
-        this.periods = periods;
-    }
-
-    public String getInterval ()
-    {
-        return interval;
-    }
-
-    public void setInterval (String interval)
-    {
-        this.interval = interval;
-    }
-
-
-
-    public Profile getProfile ()
-    {
+    public Profile getProfile() {
         return profile;
     }
 
-    public void setProfile (Profile profile)
-    {
-        this.profile = profile;
+    public List<Periods> getPeriods() {
+        return periods;
     }
 
-//    @Override
-//    public String toString()
-//    {
-//        return "ClassPojo [periods = "+periods+", interval = "+interval+", profile = "+profile+"]";
-//    }
+    public String getInterval() {
+        return interval;
+    }
+
 }
