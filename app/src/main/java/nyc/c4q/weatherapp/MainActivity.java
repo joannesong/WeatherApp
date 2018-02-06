@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     String id = "Mbfz6KHEyqiIF93hy5XRj";
     String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
     private static final int NOTIFICATION_ID = 555;
-    String hello ="testing";
+    String hello = "testing";
     String NOTIFICATION_CHANNEL = "C4Q Notifications";
 
     @Override
@@ -49,30 +49,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendNotification() {
-      // this code was taken from the android developer website
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        String id = "my_channel_01";
-        CharSequence name = getString(R.string.channel_name);
-        String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_LOW;
-        NotificationChannel mChannel = new NotificationChannel(id, name, importance);
-        mChannel.setDescription(description);
-        mChannel.enableLights(true);
-        mChannel.setLightColor(Color.RED);
-        mChannel.enableVibration(true);
-        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-        mNotificationManager.createNotificationChannel(mChannel);
-        mNotificationManager.notify();
 
 
-// this was my original code but it didnt work
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.cloud)
                 .setContentTitle("You've been notified!")
                 .setContentText("This is your notification text.");
         notificationManager.notify(NOTIFICATION_ID, builder.build());
-
     }
 
     public void setUP() {
