@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void sendNotification() {
+            public void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
 //        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
 //        int flags = PendingIntent.FLAG_CANCEL_CURRENT; // Cancel old intent and create new one
