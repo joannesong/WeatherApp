@@ -1,4 +1,4 @@
-package nyc.c4q.weatherapp.network;
+package nyc.c4q.weatherapp.model;
 
 import java.util.List;
 

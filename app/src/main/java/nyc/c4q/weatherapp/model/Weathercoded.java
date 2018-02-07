@@ -1,4 +1,4 @@
-package nyc.c4q.weatherapp.network;
+package nyc.c4q.weatherapp.model;
 
 public class Weathercoded {
     private String datetimeiso;

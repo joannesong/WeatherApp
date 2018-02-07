@@ -1,8 +1,6 @@
-package nyc.c4q.weatherapp.network;
+package nyc.c4q.weatherapp.model;
 
 import java.util.List;
-
-import nyc.c4q.weatherapp.network.Response;
 
 /**
  * Created by joannesong on 2/5/18.
