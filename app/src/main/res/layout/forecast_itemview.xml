@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <LinearLayout
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/holo_blue_light">
+            <TextView
+                android:id="@+id/day_forecast_iv"
+                android:textColor="@android:color/white"
+                android:layout_width="70dp"
+                android:layout_height="40dp"
+                android:text="Day"
+                android:textSize="17dp"
+                android:textStyle="bold"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp" />
+            <TextView
+                android:id="@+id/date_forecast_iv"
+                android:text="Date"
+                android:layout_width="70dp"
+                android:layout_height="30dp"
+                android:textColor="@android:color/white"
+                android:paddingLeft="10dp"
+                android:paddingBottom="10dp" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image_forecast_iv"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/cloudy"/>
+
+        <TextView
+            android:id="@+id/text_forecast_iv"
+            android:layout_width="100dp"
+            android:layout_height="70dp"
+            android:text="Cloudy"
+            android:paddingLeft="16dp"
+            android:textSize="16dp"
+            android:gravity="center_vertical"/>
+
+        <TextView
+            android:id="@+id/maxTemp_forecast_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:text="38"
+            android:textSize="30sp"
+            />
+        <ImageView
+            android:id="@+id/upArrow_icon"
+            android:layout_width="30dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_arrow_upward_black_24dp"
+
+            />
+        <TextView
+            android:id="@+id/minTemp_forecast_iv"
+            android:paddingLeft="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:text="30"
+            android:textSize="30sp"
+            />
+        <ImageView
+            android:id="@+id/downArrow_icon"
+            android:layout_width="30dp"
+            android:layout_height="56dp"
+            android:src="@drawable/ic_arrow_downward_black_24dp"
+            />
+
+    </LinearLayout>
+
+
+</LinearLayout>

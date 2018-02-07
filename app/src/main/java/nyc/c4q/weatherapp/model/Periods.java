@@ -12,7 +12,7 @@ public class Periods {
     private String cloudscoded;
     private String weatherprimarycoded;
     private String weatherprimary;
-    private List<Weathercoded> weathercoded;
+//    private List<Weathercoded> weathercoded;
     private String weather;
     private int windspeedmin80mmph;
     private int windspeedmin80mkph;
@@ -127,9 +127,9 @@ public class Periods {
         return weatherprimary;
     }
 
-    public List<Weathercoded> getWeathercoded() {
-        return weathercoded;
-    }
+//    public List<Weathercoded> getWeathercoded() {
+//        return weathercoded;
+//    }
 
     public String getWeather() {
         return weather;
