@@ -43,26 +43,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setUP();
 
-        String id="Mbfz6KHEyqiIF93hy5XRj";
-        String secret="I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
-
-        Retrofit retrofit=new Retrofit.Builder()
-                .baseUrl("https://api.aerisapi.com/forecasts/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        API api =retrofit.create(API.class);
-        Call<WeatherPOJO> call = api.getForcast(id,secret);
-        call.enqueue(new Callback<WeatherPOJO>() {
-            @Override
-            public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
-               if (response.isSuccessful()){
-                   WeatherPOJO forcast =response.body();
-                       Log.e("Successessful", forcast.getResponse().get(0).getPeriods().get(0).getIcon()+"");
-
-//        setUP();
-//        launchTestService();
 //        mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         Button button = findViewById(R.id.button);
@@ -72,9 +54,8 @@ public class MainActivity extends AppCompatActivity {
                 sendNotification();
             }
         });
-
-
     }
+
 
     public void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
@@ -112,27 +93,23 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-
             }
 
             @Override
             public void onFailure(Call<WeatherPOJO> call, Throwable t) {
 
-                Log.e("Failed",t.getMessage());
+                Log.e("Failed", t.getMessage());
             }
         });
 
         WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
                 "WeatherDatabase").build();
 
-                Log.e("Failed", t.getMessage());
-            }
-        });
-    }
-
-    public void launchTestService() {
-        Intent i = new Intent(this, MyIntentService.class);
-        startService(i);
-
+//        Log.e("Failed", t.getMessage());
     }
 }
+
+
+
+
+
