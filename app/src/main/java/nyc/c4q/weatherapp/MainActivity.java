@@ -3,6 +3,7 @@ package nyc.c4q.weatherapp;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -26,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     String id = "Mbfz6KHEyqiIF93hy5XRj";
     String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
     private static final int NOTIFICATION_ID = 555;
-    String hello = "testing";
     String NOTIFICATION_CHANNEL = "C4Q Notifications";
 
     @Override
@@ -49,12 +49,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendNotification() {
+        Intent intent = new Intent(this, MainActivity.class);
+//        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
+//        int flags = PendingIntent.FLAG_CANCEL_CURRENT; // Cancel old intent and create new one
 
-
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.drawable.cloud)
                 .setContentTitle("You've been notified!")
+                .setContentIntent(pendingIntent)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setContentText("This is your notification text.");
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
