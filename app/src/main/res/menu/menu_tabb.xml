@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="nyc.c4q.weatherapp.TabbActivity">
+    <item
+        android:id="@+id/refresh"
+        android:orderInCategory="100"
+        android:title="@string/refresh"
+        android:icon="@drawable/refresh"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/add"
+        android:orderInCategory="100"
+        android:icon="@drawable/add"
+        android:title="@string/add"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"/>
+
+
+</menu>
