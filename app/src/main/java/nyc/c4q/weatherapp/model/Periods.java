@@ -75,9 +75,7 @@ public class Periods {
     private int humidity;
     private int minhumidity;
     private int maxhumidity;
-    private int iceaccumin;
-    private int iceaccummm;
-    private int iceaccum;
+
     private int precipin;
     private int precipmm;
     private int pop;
@@ -379,17 +377,6 @@ public class Periods {
         return maxhumidity;
     }
 
-    public int getIceaccumin() {
-        return iceaccumin;
-    }
-
-    public int getIceaccummm() {
-        return iceaccummm;
-    }
-
-    public int getIceaccum() {
-        return iceaccum;
-    }
 
     public int getPrecipin() {
         return precipin;

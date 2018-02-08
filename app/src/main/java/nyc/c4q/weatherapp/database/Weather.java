@@ -8,7 +8,7 @@ import android.arch.persistence.room.PrimaryKey;
  * Created by C4Q on 2/6/18.
  */
 
-@Entity//Just get the date, time, max and min temps.
+@Entity(tableName = "weather")
 public class Weather {
 
     @PrimaryKey(autoGenerate = true)

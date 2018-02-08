@@ -1,6 +1,13 @@
 package nyc.c4q.weatherapp;
 
 
+
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.arch.persistence.room.Room;
+import android.content.ComponentName;
+import android.database.sqlite.SQLiteDatabase;
+
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.arch.persistence.room.Room;
@@ -16,12 +23,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-
+import nl.qbusict.cupboard.QueryResultIterable;
+import nyc.c4q.weatherapp.JobSchedulerStuff.WeatherJobService;
 import nyc.c4q.weatherapp.Fragments.ForeCastFragment;
 import nyc.c4q.weatherapp.Fragments.MapFragment;
 import nyc.c4q.weatherapp.Fragments.NOWFragment;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -45,6 +52,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import nyc.c4q.weatherapp.model.Periods;
+
 import nyc.c4q.weatherapp.network.API;
 import nyc.c4q.weatherapp.model.WeatherPOJO;
 import retrofit2.Call;
@@ -52,6 +61,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+
+import static nl.qbusict.cupboard.CupboardFactory.cupboard;
+
+public class MainActivity extends AppCompatActivity {
+    private static final int JOB_ID = 1;
+    Retrofit retrofit;
 
 import static android.app.AlarmManager.INTERVAL_DAY;
 
@@ -62,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int NOTIFICATION_ID = 555;
     String NOTIFICATION_CHANNEL = "C4Q Notifications";
+    SQLiteDatabase dq;
+
 
     private static final String TAG = "MainActivity";
 
@@ -75,6 +93,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Help help = new Help(this);
+        dq = help.getWritableDatabase();
+//        setUP();
+
+
+        JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobInfo.Builder networkJobScheduler = new JobInfo
+                .Builder(JOB_ID, new ComponentName(getApplicationContext(), WeatherJobService.class))
+                .setMinimumLatency(1000)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        jobScheduler.schedule(networkJobScheduler.build());
+
+
+//        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
+//                "WeatherDatabase").build();
+
+
         mViewPager = findViewById(R.id.container);
         setupViewPager(mViewPager);
 
@@ -83,9 +119,18 @@ public class MainActivity extends AppCompatActivity {
         scheduleAlarm();
         picker = findViewById(R.id.timePicker);
 
+
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
     }
+
+
+        Button button = findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                sendNotification();
+            }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void onDateSelectedButtonClick(View view) {
@@ -130,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new ForeCastFragment(), "ForeCast");
         adapter.addFragment(new MapFragment(), "Map");
         viewPager.setAdapter(adapter);
+
     }
 
     @Override
@@ -156,6 +202,23 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+//    public void sendNotification() {
+//        Intent intent = new Intent(this, MainActivity.class);
+////        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
+////        int flags = PendingIntent.FLAG_CANCEL_CURRENT; // Cancel old intent and create new one
+//
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
+//                .setSmallIcon(R.drawable.cloud)
+//                .setContentTitle("You've been notified!")
+//                .setContentIntent(pendingIntent)
+//                .setDefaults(NotificationCompat.DEFAULT_ALL)
+//                .setContentText("This is your notification text.");
+//        notificationManager.notify(NOTIFICATION_ID, builder.build());
+//    }
+
     public void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
 //        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
@@ -172,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+
     public void setUP() {
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.aerisapi.com/forecasts/")
@@ -187,11 +251,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
                 if (response.isSuccessful()) {
-                    WeatherPOJO forcast = response.body();
-                    Log.e("Successessful", forcast.getResponse().get(0).getPeriods().get(0).getIcon() + "");
+//                    WeatherPOJO forcast = response.body().getResponse().get(1).getPeriods();
+                    List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
+//                    int forecastSize = forcast.getResponse().size();
+//                    Log.e("Successessful", forcast.getResponse().get(0).getPeriods().get(0).getIcon() + "");
+//                    Log.e("Logging size:",forcast.getResponse().size()+"");
+
+                    for (int i = 0; i < forcast.size(); i++) {
+                        cupboard().withDatabase(dq).put(forcast.get(i));
+                    }
+
                 }
-
-
             }
 
             @Override
@@ -201,11 +271,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-                "WeatherDatabase").build();
+//        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
+//                "WeatherDatabase").build();
 
 //        Log.e("Failed", t.getMessage());
     }
+
+    public void getPeriod(){
+        List<Periods> yolo = new ArrayList<>();
+
+        QueryResultIterable<Periods> test = cupboard().withDatabase(dq).query(Periods.class).query();
+        for (Periods p: test) {
+             yolo.add(p);
+        }
+        Log.e("My data baseList is:" ,yolo.size()+"");
+    }
+
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
 
@@ -236,6 +317,7 @@ public class MainActivity extends AppCompatActivity {
             return mFragmentList.size();
         }
     }
+
 }
 
 
