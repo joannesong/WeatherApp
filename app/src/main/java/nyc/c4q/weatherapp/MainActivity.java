@@ -1,7 +1,6 @@
 package nyc.c4q.weatherapp;
 
 
-
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.arch.persistence.room.Room;
@@ -23,12 +22,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+
 import nl.qbusict.cupboard.QueryResultIterable;
 import nyc.c4q.weatherapp.JobSchedulerStuff.WeatherJobService;
 import nyc.c4q.weatherapp.Fragments.ForeCastFragment;
 import nyc.c4q.weatherapp.Fragments.MapFragment;
 import nyc.c4q.weatherapp.Fragments.NOWFragment;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -67,11 +68,6 @@ import static nl.qbusict.cupboard.CupboardFactory.cupboard;
 
 public class MainActivity extends AppCompatActivity {
     private static final int JOB_ID = 1;
-    Retrofit retrofit;
-
-import static android.app.AlarmManager.INTERVAL_DAY;
-
-public class MainActivity extends AppCompatActivity {
 
     String id = "Mbfz6KHEyqiIF93hy5XRj";
     String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
@@ -94,10 +90,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Help help = new Help(this);
-        dq = help.getWritableDatabase();
 //        setUP();
-
 
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         JobInfo.Builder networkJobScheduler = new JobInfo
@@ -111,26 +104,19 @@ public class MainActivity extends AppCompatActivity {
 //                "WeatherDatabase").build();
 
 
-        mViewPager = findViewById(R.id.container);
-        setupViewPager(mViewPager);
+//        mViewPager = findViewById(R.id.container);
+//        setupViewPager(mViewPager);
 
-        setUP();
-        networkCall();
-        scheduleAlarm();
-        picker = findViewById(R.id.timePicker);
-
-
-        TabLayout tabLayout = findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+//        setUP();
+//        networkCall();
+//        scheduleAlarm();
+//        picker = findViewById(R.id.timePicker);
+//
+//
+//        TabLayout tabLayout = findViewById(R.id.tabs);
+//        tabLayout.setupWithViewPager(mViewPager);
     }
 
-
-        Button button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                sendNotification();
-            }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void onDateSelectedButtonClick(View view) {
@@ -139,10 +125,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void launchTestService() {
-        Intent i = new Intent(this, NotificationService.class);
-        startService(i);
-    }
 
 
     @TargetApi(Build.VERSION_CODES.N)
@@ -257,10 +239,6 @@ public class MainActivity extends AppCompatActivity {
 //                    Log.e("Successessful", forcast.getResponse().get(0).getPeriods().get(0).getIcon() + "");
 //                    Log.e("Logging size:",forcast.getResponse().size()+"");
 
-                    for (int i = 0; i < forcast.size(); i++) {
-                        cupboard().withDatabase(dq).put(forcast.get(i));
-                    }
-
                 }
             }
 
@@ -277,15 +255,6 @@ public class MainActivity extends AppCompatActivity {
 //        Log.e("Failed", t.getMessage());
     }
 
-    public void getPeriod(){
-        List<Periods> yolo = new ArrayList<>();
-
-        QueryResultIterable<Periods> test = cupboard().withDatabase(dq).query(Periods.class).query();
-        for (Periods p: test) {
-             yolo.add(p);
-        }
-        Log.e("My data baseList is:" ,yolo.size()+"");
-    }
 
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
@@ -319,6 +288,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+
 
 
 
