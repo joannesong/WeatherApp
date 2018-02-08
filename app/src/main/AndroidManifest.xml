@@ -33,6 +33,9 @@
         <receiver
             android:name=".MyAlarmReceiver"
             android:process=":remote"></receiver>
+            android:name=".MyIntentService"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>
