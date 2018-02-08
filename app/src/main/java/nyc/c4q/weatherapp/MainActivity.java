@@ -1,7 +1,10 @@
 package nyc.c4q.weatherapp;
 
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.arch.persistence.room.Room;
+import android.content.ComponentName;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -43,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         setUP();
 
 //        mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -55,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
     public void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
