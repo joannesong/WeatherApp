@@ -17,7 +17,6 @@ public class WeatherJobService extends JobService {
    private static final String TAG=WeatherJobService.class.getSimpleName();
 
    private WeatherJobExecutor weatherJobExecutor= new WeatherJobExecutor();
-   MainActivity mainActivity = new MainActivity();
    private Handler handle = new Handler(new Handler.Callback() {
        @Override
        public boolean handleMessage(Message msg) {
@@ -30,6 +29,8 @@ public class WeatherJobService extends JobService {
 
     public boolean onStartJob(JobParameters params) {
         weatherJobExecutor.execute();
+        Toast.makeText(getApplicationContext(),"Running toast service class",Toast.LENGTH_LONG).show();
+
         return true;
     }
 

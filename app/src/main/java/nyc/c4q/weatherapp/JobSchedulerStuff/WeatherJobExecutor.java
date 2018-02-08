@@ -1,6 +1,7 @@
 package nyc.c4q.weatherapp.JobSchedulerStuff;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import nyc.c4q.weatherapp.MainActivity;
 
@@ -10,6 +11,7 @@ import nyc.c4q.weatherapp.MainActivity;
 
 public class WeatherJobExecutor extends AsyncTask<Void,Void,Void> {
     MainActivity mainActivity = new MainActivity();
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
@@ -18,6 +20,7 @@ public class WeatherJobExecutor extends AsyncTask<Void,Void,Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         mainActivity.setUP();
+        Log.e("Doing Background","Runninggggggg");
         return null;
     }
 
