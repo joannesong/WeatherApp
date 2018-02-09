@@ -5,6 +5,7 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Toast;
 
 import nyc.c4q.weatherapp.MainActivity;
@@ -28,9 +29,9 @@ public class WeatherJobService extends JobService {
     @Override
 
     public boolean onStartJob(JobParameters params) {
-        weatherJobExecutor.execute();
+//        weatherJobExecutor.execute();
         Toast.makeText(getApplicationContext(),"Running toast service class",Toast.LENGTH_LONG).show();
-
+        Log.e("Running","ONcreat");
         return true;
     }
 
