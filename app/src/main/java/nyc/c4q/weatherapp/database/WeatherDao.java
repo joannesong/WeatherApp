@@ -2,6 +2,7 @@ package nyc.c4q.weatherapp.database;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public interface WeatherDao {
     @Query("SELECT * FROM weather")
     List<Weather> getWeather();
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(Weather...weathers);
 
 }
