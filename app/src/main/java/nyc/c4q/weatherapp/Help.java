@@ -29,7 +29,6 @@ public class Help extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        cupboard().withDatabase(db).createTables();
     }
 
     @Override

@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Help help = new Help(this);
-        dq = help.getWritableDatabase();
 //        setUP();
 
         // This is the date picker used to select the date for our notification
