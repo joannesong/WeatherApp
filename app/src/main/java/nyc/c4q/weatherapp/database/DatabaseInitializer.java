@@ -13,16 +13,4 @@ import nyc.c4q.weatherapp.model.Response;
 
 public class DatabaseInitializer {
 
-    public static void populateAsync(@NonNull final WeatherDatabase database, @NonNull final List<Response> responseList) {
-        PopulateAsync task = new PopulateAsync();
-        task.execute();
-    }
-
-    private static class PopulateAsync extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            return null;
-        }
-    }
 }

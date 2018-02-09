@@ -63,7 +63,6 @@
             android:layout_width="30dp"
             android:layout_height="56dp"
             android:src="@drawable/ic_arrow_upward_black_24dp"
-
             />
         <TextView
             android:id="@+id/minTemp_forecast_iv"
