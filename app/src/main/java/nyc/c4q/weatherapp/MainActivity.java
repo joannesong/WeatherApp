@@ -46,8 +46,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         setUP();
 
 //        mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
