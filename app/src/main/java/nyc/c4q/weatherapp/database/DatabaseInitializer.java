@@ -66,7 +66,6 @@ public class DatabaseInitializer {
 
         PopulateDbAsync(WeatherDatabase db) {
             mDb = db;
-
         }
 
 
