@@ -8,7 +8,6 @@ import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 import java.util.List;
 
-import nyc.c4q.weatherapp.model.Periods;
 
 /**
  * Created by C4Q on 2/6/18.
@@ -18,18 +17,21 @@ import nyc.c4q.weatherapp.model.Periods;
 public interface WeatherDao {
 
     @Query("SELECT * FROM weatherdata")
-    List<Periods> getForecast();
+    List<WeatherEntity> getForecast();
 
-    @Query("SELECT * FROM weatherdata WHERE id IN(:id)")
-    List<Periods> findById(int[] id);
+    @Query("SELECT * FROM weatherdata WHERE id IN (:id)")
+    List<WeatherEntity> loadALLByIds(int[] id);
+
+    @Query("SELECT * FROM weatherdata WHERE id LIKE :id LIMIT 1")
+    WeatherEntity findByID(int id);
 
     @Insert
-    void insertAll(List<Periods> forecast);
+    void insertAll(WeatherEntity...weatherEntities);
 
     @Update
-    void update(Periods periods);
+    void updatWeather(WeatherEntity...weatherEntities);
 
     @Delete
-    void delete(Periods periods);
+    void delete(WeatherEntity weatherEntity);
 
 }

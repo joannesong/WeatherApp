@@ -6,10 +6,10 @@ import android.app.job.JobScheduler;
 import android.arch.persistence.room.Room;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.os.Build;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -39,10 +39,12 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import nyc.c4q.weatherapp.database.WeatherEntity;
 import nyc.c4q.weatherapp.model.Periods;
-import nyc.c4q.weatherapp.model.Weathercoded;
 import nyc.c4q.weatherapp.network.API;
 import nyc.c4q.weatherapp.model.Weather;
 import retrofit2.Call;
@@ -52,16 +54,20 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
     private static final int JOB_ID = 1;
     private RecyclerView recyclerView;
+    private WeatherDatabase wdb;
+    private List<WeatherEntity> weatherEntityList;
+    private Set<Character> newSet;
+    private List<Character> newList;
+    private WeatherCodedAdaptor weatherCodedAdaptor;
 
     String id = "Mbfz6KHEyqiIF93hy5XRj";
     String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
 
     private static final int NOTIFICATION_ID = 555;
     String NOTIFICATION_CHANNEL = "C4Q Notifications";
-    SQLiteDatabase dq;
 
 
     private static final String TAG = "MainActivity";
@@ -89,12 +95,66 @@ public class MainActivity extends AppCompatActivity {
         setup();
         setupViews();
         scheduleAlarm();
-        retrieveWeather();
+
+        Handler rWHandler = new Handler();
+        rWHandler.postDelayed(() -> retrieveWeather(),1000);
+
+        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
+                "WeatherDatabase").build();
 
     }
-
+//The method that adds to the Database.
     private void retrieveWeather() {
-        setup();
+        Thread thread = new Thread(() -> {
+            wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class, "WeatherDatabase").build();
+            weatherEntityList = wdb.weatherDao().getForecast();
+            newSet = new HashSet<>();
+            for(WeatherEntity w : weatherEntityList){
+                Log.d(TAG, "Database is running, see: " + w.getWeather());
+                newSet.add((char) w.getId());
+                newSet.add((char) w.getMintempf());
+                newSet.add((char) w.getMaxtempf());
+                newSet.add(w.getDatetimeiso().charAt(0));
+            }
+            newList = new ArrayList<>();
+            newList.addAll(newSet);
+
+            Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
+
+            Runnable runnable = () -> {
+                if(weatherEntityList.size() > 0){
+                    //set recyclerview here ******
+                }
+            };
+            mainHandler.post(runnable);
+            wdb.close();
+        });
+        thread.start();
+        try{
+            thread.join();
+        }catch (InterruptedException e){
+
+        }
+    }
+//Put this on it's own separate thread. Just wdb components.
+    private void insertToDatabase(List<Periods> forecast){
+        Thread thread = new Thread(() -> {
+            //Create a new entity and put that into the database.
+            WeatherEntity weatherEntity = new WeatherEntity();
+            //Fill up the information you get from the onResponse into the entity.
+            weatherEntity.setWeather(forecast.get(0).getWeather());
+            //This opens the database...wdb.close closes the database.
+            //This opens the database and inserts this into the database.
+            wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class, "WeatherDatabase").build();
+            wdb.weatherDao().insertAll(weatherEntity);
+            wdb.close();
+        });
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void jobScheduler() {
@@ -125,8 +185,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Weather> call, Response<Weather> response) {
                 if (response.isSuccessful()) {
                     List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
-                    WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-                            "WeatherDatabase").build();
+                    insertToDatabase(forecast);
                     Log.e("Logging size:", forecast.size() + "");
                 }
             }
@@ -218,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
 
