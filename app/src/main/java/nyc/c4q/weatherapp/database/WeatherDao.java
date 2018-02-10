@@ -32,4 +32,7 @@ public interface WeatherDao {
     @Delete
     void delete(Periods periods);
 
+    @Query("SELECT COUNT(*) from weatherdata")
+    int countEvents();
+
 }

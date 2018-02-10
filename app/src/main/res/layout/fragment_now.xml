@@ -9,18 +9,18 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="290dp">
-
+        android:layout_height="0dp"
+        android:layout_weight="2">
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="8dp"
+            android:src="@drawable/showers"
             tools:ignore="MissingConstraints"
-            android:src="@drawable/showers"/>
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="8dp" />
 
         <TextView
             android:id="@+id/textView"
@@ -60,14 +60,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
-
-
     </android.support.constraint.ConstraintLayout>
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <LinearLayout
@@ -90,6 +89,7 @@
                     android:orientation="horizontal">
 
                     <ImageView
+                        android:id="@+id/tonight_icon"
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:src="@drawable/showers" />
@@ -128,41 +128,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="4"
-                            android:text="@string/scattered_snow"/>
-
-
+                            android:text="@string/scattered_snow" />
                     </LinearLayout>
 
-
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight=".5"
-                    android:orientation="horizontal">
-
-
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/text_wind"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/test_precip"/>
-                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -189,6 +157,7 @@
                     android:orientation="horizontal">
 
                     <ImageView
+                        android:id="@+id/tomorrow_icon"
                         android:layout_width="100dp"
                         android:layout_height="match_parent"
                         android:src="@drawable/showers" />
@@ -216,7 +185,6 @@
                                 android:textSize="30sp" />
 
                             <ImageView
-
                                 android:layout_width="0dp"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1"
@@ -228,59 +196,11 @@
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="4"
-                            android:text="@string/scattered_snow"/>
+                            android:text="@string/scattered_snow" />
 
 
                     </LinearLayout>
 
-
-                </LinearLayout>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight=".5"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/winds"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/precip"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/text_wind"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/test_precip"/>
-                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -288,16 +208,8 @@
             </LinearLayout>
 
         </LinearLayout>
-        <android.support.v7.widget.RecyclerView
-           android:id="@+id/now_rv"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
 
-        </android.support.v7.widget.RecyclerView>
     </LinearLayout>
-
-
 
 
 </LinearLayout>

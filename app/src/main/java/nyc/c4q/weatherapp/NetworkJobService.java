@@ -5,4 +5,5 @@ package nyc.c4q.weatherapp;
  */
 
 public class NetworkJobService {
+
 }
