@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <array name="apptour">
+        <item>@drawable/am_pcloudy</item>
+        <item>@drawable/am_pcloudyr</item>
+        <item>@drawable/am_showers</item>
+        <item>@drawable/am_snowshowers</item>
+        <item>@drawable/am_tstorm</item>
+        <item>@drawable/blizzard</item>
+        <item>@drawable/blizzardn</item>
+        <item>@drawable/blowingsnow</item>
+        <item>@drawable/blowingsnown</item>
+        <item>@drawable/chancetstorm</item>
+        <item>@drawable/chancetstormn</item>
+        <item>@drawable/clear</item>
+        <item>@drawable/clearn</item>
+        <item>@drawable/clearw</item>
+        <item>@drawable/clearwn</item>
+    </array>
+
+</resources>
