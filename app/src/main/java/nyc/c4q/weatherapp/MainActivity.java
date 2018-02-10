@@ -10,12 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
-import android.arch.persistence.room.Room;
-import android.icu.util.Calendar;
-import android.icu.util.GregorianCalendar;
 import android.location.Location;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -24,32 +20,33 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import nl.qbusict.cupboard.QueryResultIterable;
 import nyc.c4q.weatherapp.JobSchedulerStuff.WeatherJobService;
-import nyc.c4q.weatherapp.Fragments.ForeCastFragment;
-import nyc.c4q.weatherapp.Fragments.MapFragment;
-import nyc.c4q.weatherapp.Fragments.NOWFragment;
-
+import nyc.c4q.weatherapp.controller.WeatherRVAdapter;
 import nyc.c4q.weatherapp.database.Weather;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.view.View;
-import android.widget.Button;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import nyc.c4q.weatherapp.model.Periods;
+
 import nyc.c4q.weatherapp.network.API;
 import nyc.c4q.weatherapp.model.WeatherPOJO;
 import retrofit2.Call;
@@ -59,11 +56,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-import static android.app.AlarmManager.*;
-import static nl.qbusict.cupboard.CupboardFactory.cupboard;
-
 public class MainActivity extends AppCompatActivity {
     private static final int JOB_ID = 1;
+    private RecyclerView recyclerView;
 
     String id = "Mbfz6KHEyqiIF93hy5XRj";
     String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
@@ -80,56 +75,88 @@ public class MainActivity extends AppCompatActivity {
 
     // This is the date picker used to select the date for our notification
     private TimePicker picker;
-
+    private FusedLocationProviderClient mFusedLocationClient;
+    double lat;
+    double lng;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Help help = new Help(this);
-//        setUP();
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        getLocation();
 
-        // This is the date picker used to select the date for our notification
-         TimePicker picker;
+        recyclerView = findViewById(R.id.recycler_view);
 
-        double lat;
-        double lng;
+        jobScheduler();
+        setup();
+        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
+                "WeatherDatabase").build();
+        setupViews();
+        networkCall();
+        scheduleAlarm();
+
+//        new Thread(() -> {
+//            List<Weather> weatherList = App.get().getWeatherDatabase().weatherDao().getWeather();
+//            boolean force = App.get().isForceUpdate();
+//            if (force || weatherList.isEmpty()) {
+//                retrieveWeather();
+//            } else {
+//                populateWeather(weatherList);
+//            }
+//        }).start();
+    }
 
 
-            getLocation();
-            setup();
-            WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-                    "WeatherDatabase").build();
-            setupViews();
-            networkCall();
+    private void retrieveWeather() {
+        List<Weather> weatherList = new ArrayList<>();
 
+        for(int i = 0; i < weatherList.size(); i++){
 
+            retrieveWeather();
+            populateWeather(weatherList);
+
+//        for (int i = 0; i < 10; i++) {
+//
+//            //Adjust views
+//            Weather weather = new Weather();
+//            weather.setDatetimeiso(getString(R.string.section_format, (i)));
+//            weather.setIcon("http://lorempixel.com/500/500/technics/" + i);
+//            weather.setMaxtempf(i);
+//            weather.setMintempf(i);
+//            weatherList.add(weather);
         }
 
+        // insert weatherList into database
+        App.get().getWeatherDatabase().weatherDao().insertAll(weatherList);
+
+        // disable flag for force update
+        App.get().setForceUpdate(false);
+
+        populateWeather(weatherList);
+    }
+
+    private void populateWeather(final List<Weather> weatherList) {
+        runOnUiThread(() -> recyclerView.setAdapter(new WeatherRVAdapter(weatherList)));
+    }
 
 
-
-
-//        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-//                "WeatherDatabase").build();
-
-
-
-
-
-    public void launchTestService() {
-        Intent i = new Intent(this, NotificationService.class);
-        startService(i);
+    private void jobScheduler() {
+        JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobInfo.Builder networkJobScheduler = new JobInfo
+                .Builder(JOB_ID, new ComponentName(getApplicationContext(), WeatherJobService.class))
+                .setMinimumLatency(1000)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        jobScheduler.schedule(networkJobScheduler.build());
     }
 
     public void setupViews() {
         mViewPager = findViewById(R.id.container);
-
+//        setupViewPager(mViewPager);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
 
     }
 
@@ -146,9 +173,23 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1020);
         } else {
-
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                // Logic to handle location object
+                                lat = location.getLatitude();
+                                lng = location.getLongitude();
+                                Log.e("My Location", lat + "," + lng);
+                            }
+                        }
+                    });
         }
+    }
 
+    @TargetApi(Build.VERSION_CODES.N)
+    public void scheduleAlarm() {
 
 //        Calendar cur_cal = new GregorianCalendar();
 //        cur_cal.setTimeInMillis(System.currentTimeMillis());//set the current time and date for this calendar
@@ -167,10 +208,18 @@ public class MainActivity extends AppCompatActivity {
         final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, MyAlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 //        long minuteFromNow = System.currentTimeMillis() + 60 * 1000;
-        alarm.setRepeating(RTC_WAKEUP, System.currentTimeMillis(), INTERVAL_FIFTEEN_MINUTES, pendingIntent);
+        alarm.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
 //        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, minuteFromNow, AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
     }
 
+//    private void setupViewPager(ViewPager viewPager) {
+//        SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
+//        adapter.addFragment(new NOWFragment(), "Now");
+//        adapter.addFragment(new ForeCastFragment(), "ForeCast");
+//        adapter.addFragment(new MapFragment(), "Map");
+//        viewPager.setAdapter(adapter);
+//
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -229,20 +278,9 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
-
-    public void setUP() {
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.aerisapi.com/forecasts/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        networkCall();
-    }
-
-
-
     public void networkCall() {
         API api = retrofit.create(API.class);
-        Call<WeatherPOJO> call = api.getForcast(id, secret);
+        Call<WeatherPOJO> call = api.getForcast(lat + "," + lng, id, secret);
         call.enqueue(new Callback<WeatherPOJO>() {
             @Override
             public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
@@ -252,76 +290,53 @@ public class MainActivity extends AppCompatActivity {
 //                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
 //                    int forecastSize = forcast.getResponse().size();
 
-                        for (int i = 0; i < forcast.size(); i++) {
-                            cupboard().withDatabase(dq).put(forcast.get(i));
-                        }
 
-                    }
+                    Log.e("Logging size:", forcast.size() + "");
                 }
+            }
 
-                @Override
-                public void onFailure(Call<WeatherPOJO> call, Throwable t) {
+            @Override
+            public void onFailure(Call<WeatherPOJO> call, Throwable t) {
 
-                    Log.e("Failed", t.getMessage());
-                }
-            });
+                Log.e("Failed", t.getMessage());
+            }
+        });
 
         WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
                 "WeatherDatabase").build();
 
 //        Log.e("Failed", t.getMessage());
+    }
+
+    private class SectionsPageAdapter extends FragmentPagerAdapter {
+
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
         }
 
-        public void getPeriod(){
-            List<Periods> yolo = new ArrayList<>();
-
-            QueryResultIterable<Periods> test = cupboard().withDatabase(dq).query(Periods.class).query();
-            for (Periods p: test) {
-                yolo.add(p);
-            }
-            Log.e("My data baseList is:" ,yolo.size()+"");
+        public SectionsPageAdapter(FragmentManager fm) {
+            super(fm);
         }
-}
 
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
 
-    class SectionsPageAdapter extends FragmentPagerAdapter {
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
 
-            private final List<Fragment> mFragmentList = new ArrayList<>();
-            private final List<String> mFragmentTitleList = new ArrayList<>();
-
-            public void addFragment(Fragment fragment, String title) {
-                mFragmentList.add(fragment);
-                mFragmentTitleList.add(title);
-            }
-
-            public SectionsPageAdapter(FragmentManager fm) {
-                super(fm);
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                return mFragmentTitleList.get(position);
-            }
-
-            @Override
-            public Fragment getItem(int position) {
-                return mFragmentList.get(position);
-            }
-
-            @Override
-            public int getCount() {
-                return mFragmentList.size();
-            }
-
-
-
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+    }
 
 }
-
-
-
-
-
-
-
 

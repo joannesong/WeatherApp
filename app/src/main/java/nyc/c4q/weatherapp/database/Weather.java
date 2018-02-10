@@ -4,6 +4,8 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import nyc.c4q.weatherapp.model.WeatherPOJO;
+
 /**
  * Created by C4Q on 2/6/18.
  */
@@ -25,6 +27,10 @@ public class Weather {
 
     @ColumnInfo
     private String datetimeiso;
+
+    public Weather(){
+        //room will need a no-args constructor for default.
+    }
 
     public int getId(){
         return id;
@@ -65,4 +71,5 @@ public class Weather {
     public void setDatetimeiso(String datetimeiso) {
         this.datetimeiso = datetimeiso;
     }
+
 }
