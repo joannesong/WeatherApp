@@ -47,6 +47,7 @@ import java.util.List;
 
 import nyc.c4q.weatherapp.model.Periods;
 
+import nyc.c4q.weatherapp.model.Weathercoded;
 import nyc.c4q.weatherapp.network.API;
 import nyc.c4q.weatherapp.model.WeatherPOJO;
 import retrofit2.Call;
@@ -94,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
                 "WeatherDatabase").build();
         setupViews();
-//        networkCall();
         scheduleAlarm();
 
         new Thread(() -> {
@@ -117,15 +117,11 @@ public class MainActivity extends AppCompatActivity {
             retrieveWeather();
             populateWeather(weatherList);
 
-//        for (int i = 0; i < 10; i++) {
-//
-//            //Adjust views
-//            Weather weather = new Weather();
-//            weather.setDatetimeiso(getString(R.string.section_format, (i)));
-//            weather.setIcon("http://lorempixel.com/500/500/technics/" + i);
-//            weather.setMaxtempf(i);
-//            weather.setMintempf(i);
-//            weatherList.add(weather);
+            //Adjust views
+            Weather weather = new Weather();
+            weather.setMintempf(weather.getMintempf());
+            weather.setMaxtempf(weather.getMaxtempf());
+            weather.setDatetimeiso(weather.getDatetimeiso());
         }
 
         // insert weatherList into database
@@ -153,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupViews() {
         mViewPager = findViewById(R.id.container);
-//        setupViewPager(mViewPager);
-
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
@@ -171,10 +165,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
                 if (response.isSuccessful()) {
-//                    WeatherPOJO forcast = response.body().getResponse().get(1).getPeriods();
                     List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
-//                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
-//                    int forecastSize = forcast.getResponse().size();
+                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
 
                     Log.e("Logging size:", forcast.size() + "");
                 }
@@ -193,15 +185,11 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1020);
         } else {
             mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                // Logic to handle location object
-                                lat = location.getLatitude();
-                                lng = location.getLongitude();
-                                Log.e("My Location", lat + "," + lng);
-                            }
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            lat = location.getLatitude();
+                            lng = location.getLongitude();
+                            Log.e("My Location", lat + "," + lng);
                         }
                     });
         }
@@ -209,36 +197,11 @@ public class MainActivity extends AppCompatActivity {
 
     @TargetApi(Build.VERSION_CODES.N)
     public void scheduleAlarm() {
-
-//        Calendar cur_cal = new GregorianCalendar();
-//        cur_cal.setTimeInMillis(System.currentTimeMillis());//set the current time and date for this calendar
-//
-//        Calendar cal = new GregorianCalendar();
-//        cal.add(Calendar.DAY_OF_YEAR, cur_cal.get(Calendar.DAY_OF_YEAR));
-//        cal.set(Calendar.HOUR_OF_DAY, picker.getHour());
-//        cal.set(Calendar.MINUTE, picker.getMinute());
-//        cal.set(Calendar.SECOND, 0);
-//        cal.set(Calendar.MILLISECOND, 0);
-//        cal.set(Calendar.DATE, cur_cal.get(Calendar.DATE));
-//        cal.set(Calendar.MONTH, cur_cal.get(Calendar.MONTH));
-//        long times = cal.getTimeInMillis();
-
         Intent intent = new Intent(getApplicationContext(), MyAlarmReceiver.class);
         final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, MyAlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-//        long minuteFromNow = System.currentTimeMillis() + 60 * 1000;
         alarm.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
-//        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, minuteFromNow, AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
     }
-
-//    private void setupViewPager(ViewPager viewPager) {
-//        SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
-//        adapter.addFragment(new NOWFragment(), "Now");
-//        adapter.addFragment(new ForeCastFragment(), "ForeCast");
-//        adapter.addFragment(new MapFragment(), "Map");
-//        viewPager.setAdapter(adapter);
-//
-//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -265,26 +228,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    public void sendNotification() {
-//        Intent intent = new Intent(this, MainActivity.class);
-////        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
-////        int flags = PendingIntent.FLAG_CANCEL_CURRENT; // Cancel old intent and create new one
-//
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
-//                .setSmallIcon(R.drawable.cloud)
-//                .setContentTitle("You've been notified!")
-//                .setContentIntent(pendingIntent)
-//                .setDefaults(NotificationCompat.DEFAULT_ALL)
-//                .setContentText("This is your notification text.");
-//        notificationManager.notify(NOTIFICATION_ID, builder.build());
-//    }
-
     public void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
-//        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
-//        int flags = PendingIntent.FLAG_CANCEL_CURRENT; // Cancel old intent and create new one
         PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
@@ -305,10 +250,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
                 if (response.isSuccessful()) {
-//                    WeatherPOJO forcast = response.body().getResponse().get(1).getPeriods();
                     List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
-//                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
-//                    int forecastSize = forcast.getResponse().size();
                     Log.e("Logging size:", forcast.size() + "");
                 }
             }
@@ -322,8 +264,6 @@ public class MainActivity extends AppCompatActivity {
 
         WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
                 "WeatherDatabase").build();
-
-//        Log.e("Failed", t.getMessage());
     }
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
