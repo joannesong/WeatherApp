@@ -7,15 +7,9 @@ import android.arch.persistence.room.Room;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
-
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
-import android.arch.persistence.room.Room;
-import android.icu.util.Calendar;
-import android.icu.util.GregorianCalendar;
-import android.location.Location;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -24,51 +18,32 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import nl.qbusict.cupboard.QueryResultIterable;
 import nyc.c4q.weatherapp.JobSchedulerStuff.WeatherJobService;
-import nyc.c4q.weatherapp.Fragments.ForeCastFragment;
-import nyc.c4q.weatherapp.Fragments.MapFragment;
-import nyc.c4q.weatherapp.Fragments.NOWFragment;
-import nyc.c4q.weatherapp.database.Weather;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import nyc.c4q.weatherapp.model.Periods;
-
 import nyc.c4q.weatherapp.model.Weathercoded;
 import nyc.c4q.weatherapp.network.API;
-import nyc.c4q.weatherapp.model.WeatherPOJO;
+import nyc.c4q.weatherapp.model.Weather;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -76,10 +51,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 
-import static nl.qbusict.cupboard.CupboardFactory.cupboard;
-
 public class MainActivity extends AppCompatActivity {
     private static final int JOB_ID = 1;
+    private RecyclerView recyclerView;
 
     String id = "Mbfz6KHEyqiIF93hy5XRj";
     String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
@@ -108,17 +82,18 @@ public class MainActivity extends AppCompatActivity {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         getLocation();
 
+        recyclerView = findViewById(R.id.recycler_view);
+
         jobScheduler();
         setup();
-        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-                "WeatherDatabase").build();
         setupViews();
-//        networkCall();
         scheduleAlarm();
+        retrieveWeather();
 
+    }
 
-
-
+    private void retrieveWeather() {
+        setup();
     }
 
     private void jobScheduler() {
@@ -132,11 +107,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupViews() {
         mViewPager = findViewById(R.id.container);
-        setupViewPager(mViewPager);
-
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
 
     }
 
@@ -146,22 +118,19 @@ public class MainActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         API api = retrofit.create(API.class);
-        Call<WeatherPOJO> call = api.getForcast(lat + "," + lng, id, secret);
-        call.enqueue(new Callback<WeatherPOJO>() {
+        Call<Weather> call = api.getForcast(lat + "," + lng, id, secret);
+        call.enqueue(new Callback<Weather>() {
             @Override
-            public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
+            public void onResponse(Call<Weather> call, Response<Weather> response) {
                 if (response.isSuccessful()) {
-//                    WeatherPOJO forcast = response.body().getResponse().get(1).getPeriods();
-                    List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
-//                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
-//                    int forecastSize = forcast.getResponse().size();
+                    List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
 
-                    Log.e("Logging size:", forcast.size() + "");
+                    Log.e("Logging size:", forecast.size() + "");
                 }
             }
 
             @Override
-            public void onFailure(Call<WeatherPOJO> call, Throwable t) {
+            public void onFailure(Call<Weather> call, Throwable t) {
                 Log.e("Failed", t.getMessage());
             }
         });
@@ -173,15 +142,11 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1020);
         } else {
             mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                // Logic to handle location object
-                                lat = location.getLatitude();
-                                lng = location.getLongitude();
-                                Log.e("My Location", lat + "," + lng);
-                            }
+                    .addOnSuccessListener(this, location -> {
+                        if (location != null) {
+                            lat = location.getLatitude();
+                            lng = location.getLongitude();
+                            Log.e("My Location", lat + "," + lng);
                         }
                     });
         }
@@ -189,35 +154,10 @@ public class MainActivity extends AppCompatActivity {
 
     @TargetApi(Build.VERSION_CODES.N)
     public void scheduleAlarm() {
-
-//        Calendar cur_cal = new GregorianCalendar();
-//        cur_cal.setTimeInMillis(System.currentTimeMillis());//set the current time and date for this calendar
-//
-//        Calendar cal = new GregorianCalendar();
-//        cal.add(Calendar.DAY_OF_YEAR, cur_cal.get(Calendar.DAY_OF_YEAR));
-//        cal.set(Calendar.HOUR_OF_DAY, picker.getHour());
-//        cal.set(Calendar.MINUTE, picker.getMinute());
-//        cal.set(Calendar.SECOND, 0);
-//        cal.set(Calendar.MILLISECOND, 0);
-//        cal.set(Calendar.DATE, cur_cal.get(Calendar.DATE));
-//        cal.set(Calendar.MONTH, cur_cal.get(Calendar.MONTH));
-//        long times = cal.getTimeInMillis();
-
         Intent intent = new Intent(getApplicationContext(), MyAlarmReceiver.class);
         final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, MyAlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-//        long minuteFromNow = System.currentTimeMillis() + 60 * 1000;
         alarm.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
-//        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, minuteFromNow, AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
-    }
-
-    private void setupViewPager(ViewPager viewPager) {
-        SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
-        adapter.addFragment(new NOWFragment(), "Now");
-        adapter.addFragment(new ForeCastFragment(), "ForeCast");
-        adapter.addFragment(new MapFragment(), "Map");
-        viewPager.setAdapter(adapter);
-
     }
 
     @Override
@@ -245,26 +185,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-//    public void sendNotification() {
-//        Intent intent = new Intent(this, MainActivity.class);
-////        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
-////        int flags = PendingIntent.FLAG_CANCEL_CURRENT; // Cancel old intent and create new one
-//
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
-//                .setSmallIcon(R.drawable.cloud)
-//                .setContentTitle("You've been notified!")
-//                .setContentIntent(pendingIntent)
-//                .setDefaults(NotificationCompat.DEFAULT_ALL)
-//                .setContentText("This is your notification text.");
-//        notificationManager.notify(NOTIFICATION_ID, builder.build());
-//    }
-
     public void sendNotification() {
         Intent intent = new Intent(this, MainActivity.class);
-//        int requestID = (int) System.currentTimeMillis(); // Unique requestID to differentiate between various notification with same notification ID
-//        int flags = PendingIntent.FLAG_CANCEL_CURRENT; // Cancel old intent and create new one
         PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
@@ -278,23 +200,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void networkCall() {
-       getLocation();
+        getLocation();
         API api = retrofit.create(API.class);
-        Call<WeatherPOJO> call = api.getForcast(lat + "," + lng, id, secret);
-        call.enqueue(new Callback<WeatherPOJO>() {
+        Call<Weather> call = api.getForcast(lat + "," + lng, id, secret);
+        call.enqueue(new Callback<Weather>() {
             @Override
-            public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
+            public void onResponse(Call<Weather> call, Response<Weather> response) {
                 if (response.isSuccessful()) {
-//                    WeatherPOJO forcast = response.body().getResponse().get(1).getPeriods();
                     List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
-//                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
-//                    int forecastSize = forcast.getResponse().size();
                     Log.e("Logging size:", forcast.size() + "");
                 }
             }
 
             @Override
-            public void onFailure(Call<WeatherPOJO> call, Throwable t) {
+            public void onFailure(Call<Weather> call, Throwable t) {
 
                 Log.e("Failed", t.getMessage());
             }
@@ -302,8 +221,6 @@ public class MainActivity extends AppCompatActivity {
 
         WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
                 "WeatherDatabase").build();
-
-//        Log.e("Failed", t.getMessage());
     }
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
@@ -337,11 +254,4 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
-
-
-
-
-
-
-
 

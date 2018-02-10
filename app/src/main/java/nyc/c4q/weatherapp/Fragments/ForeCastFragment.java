@@ -14,8 +14,7 @@ import nyc.c4q.weatherapp.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ForeCastFragment extends Fragment {
-
+public class ForeCastFragment extends Fragment{
     View view;
 
 
