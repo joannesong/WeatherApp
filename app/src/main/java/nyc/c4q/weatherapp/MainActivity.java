@@ -21,7 +21,12 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import nyc.c4q.weatherapp.Fragments.ForeCastFragment;
+import nyc.c4q.weatherapp.Fragments.MapFragment;
+import nyc.c4q.weatherapp.Fragments.NOWFragment;
 import nyc.c4q.weatherapp.JobSchedulerStuff.WeatherJobService;
+import nyc.c4q.weatherapp.database.DatabaseInitializer;
+import nyc.c4q.weatherapp.database.WeatherDao;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
 
 import android.app.NotificationManager;
@@ -74,21 +79,22 @@ public class MainActivity extends AppCompatActivity {
     double lat;
     double lng;
 
+    Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         getLocation();
-
-        recyclerView = findViewById(R.id.recycler_view);
-
+        context = getApplicationContext();
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        sendNotification();
         jobScheduler();
         setup();
+//        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
+//                "WeatherDatabase").build();
         setupViews();
-        scheduleAlarm();
-        retrieveWeather();
+        networkCall();
 
     }
 
@@ -107,12 +113,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void setupViews() {
         mViewPager = findViewById(R.id.container);
+        setupViewPager(mViewPager);
+
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
     }
 
     public void setup() {
+        getLocation();
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.aerisapi.com/forecasts/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -125,7 +133,10 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
 
+                    DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context));
+
                     Log.e("Logging size:", forecast.size() + "");
+
                 }
             }
 
@@ -134,6 +145,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Failed", t.getMessage());
             }
         });
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+        SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
+        adapter.addFragment(new NOWFragment(), "Now");
+        adapter.addFragment(new ForeCastFragment(), "ForeCast");
+        adapter.addFragment(new MapFragment(), "Map");
+        viewPager.setAdapter(adapter);
+
     }
 
     public void getLocation() {
@@ -152,13 +172,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
-    public void scheduleAlarm() {
-        Intent intent = new Intent(getApplicationContext(), MyAlarmReceiver.class);
-        final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, MyAlarmReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES, pendingIntent);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -186,10 +199,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void sendNotification() {
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.mipmap.sun_round)
                 .setContentTitle("You've been notified!")
                 .setContentIntent(pendingIntent)
@@ -199,8 +212,10 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+
     public void networkCall() {
         getLocation();
+        List<Periods> forcast = new ArrayList<>();
         API api = retrofit.create(API.class);
         Call<Weather> call = api.getForcast(lat + "," + lng, id, secret);
         call.enqueue(new Callback<Weather>() {
@@ -214,13 +229,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
-
                 Log.e("Failed", t.getMessage());
             }
         });
-
-        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-                "WeatherDatabase").build();
+//        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
+//                "WeatherDatabase").build();
     }
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
