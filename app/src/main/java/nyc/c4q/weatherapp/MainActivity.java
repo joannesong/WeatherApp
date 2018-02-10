@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
                 "WeatherDatabase").build();
         setupViews();
-        networkCall();
+//        networkCall();
         scheduleAlarm();
 
 
@@ -145,7 +145,26 @@ public class MainActivity extends AppCompatActivity {
                 .baseUrl("https://api.aerisapi.com/forecasts/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-        networkCall();
+        API api = retrofit.create(API.class);
+        Call<WeatherPOJO> call = api.getForcast(lat + "," + lng, id, secret);
+        call.enqueue(new Callback<WeatherPOJO>() {
+            @Override
+            public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
+                if (response.isSuccessful()) {
+//                    WeatherPOJO forcast = response.body().getResponse().get(1).getPeriods();
+                    List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
+//                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
+//                    int forecastSize = forcast.getResponse().size();
+
+                    Log.e("Logging size:", forcast.size() + "");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<WeatherPOJO> call, Throwable t) {
+                Log.e("Failed", t.getMessage());
+            }
+        });
     }
 
     public void getLocation() {
@@ -259,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void networkCall() {
+       getLocation();
         API api = retrofit.create(API.class);
         Call<WeatherPOJO> call = api.getForcast(lat + "," + lng, id, secret);
         call.enqueue(new Callback<WeatherPOJO>() {
@@ -269,8 +289,6 @@ public class MainActivity extends AppCompatActivity {
                     List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
 //                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
 //                    int forecastSize = forcast.getResponse().size();
-
-
                     Log.e("Logging size:", forcast.size() + "");
                 }
             }

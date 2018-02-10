@@ -16,6 +16,7 @@ import nyc.c4q.weatherapp.MainActivity;
 
 public class WeatherJobService extends JobService {
    private static final String TAG=WeatherJobService.class.getSimpleName();
+   MainActivity mainActivity = new MainActivity();
 
    private WeatherJobExecutor weatherJobExecutor= new WeatherJobExecutor();
    private Handler handle = new Handler(new Handler.Callback() {
@@ -27,10 +28,10 @@ public class WeatherJobService extends JobService {
        }
    });
     @Override
-
     public boolean onStartJob(JobParameters params) {
-//        weatherJobExecutor.execute();
+        weatherJobExecutor.execute();
         Toast.makeText(getApplicationContext(),"Running toast service class",Toast.LENGTH_LONG).show();
+//        mainActivity.setup();
         Log.e("Running","ONcreat");
         return true;
     }
