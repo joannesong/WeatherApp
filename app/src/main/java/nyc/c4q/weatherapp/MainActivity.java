@@ -61,13 +61,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int JOB_ID = 1;
     private RecyclerView recyclerView;
 
-    String id = "Mbfz6KHEyqiIF93hy5XRj";
-    String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
+    static String id = "Mbfz6KHEyqiIF93hy5XRj";
+    static String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
 
     private static final int NOTIFICATION_ID = 555;
     String NOTIFICATION_CHANNEL = "C4Q Notifications";
     SQLiteDatabase dq;
-
 
     private static final String TAG = "MainActivity";
 
@@ -76,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
     // This is the date picker used to select the date for our notification
     private TimePicker picker;
-    private FusedLocationProviderClient mFusedLocationClient;
-    double lat;
-    double lng;
+    private static FusedLocationProviderClient mFusedLocationClient;
+    static double lat;
+    static double lng;
 
     Context context;
 
@@ -86,16 +85,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        getLocation();
         context = getApplicationContext();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-//        sendNotification();
-//        jobScheduler();
-        setup();
-//        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-//                "WeatherDatabase").build();
+        jobScheduler();
         setupViews();
-//        networkCall();
 
         DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context));
         List<Periods> test= DatabaseInitializer.getall(WeatherDatabase.getDatabase(context));
@@ -104,16 +97,13 @@ public class MainActivity extends AppCompatActivity {
         Log.e("Test",test.size()+"");
     }
 
-    private void retrieveWeather() {
-        setup();
-    }
-
     private void jobScheduler() {
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
         JobInfo.Builder networkJobScheduler = new JobInfo
                 .Builder(JOB_ID, new ComponentName(getApplicationContext(), WeatherJobService.class))
                 .setMinimumLatency(1000)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED);
+        Log.e("js", "Im in JS");
         jobScheduler.schedule(networkJobScheduler.build());
     }
 
@@ -125,33 +115,7 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
     }
 
-    public void setup() {
-        getLocation();
-        retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.aerisapi.com/forecasts/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        API api = retrofit.create(API.class);
-        Call<Weather> call = api.getForcast(lat + "," + lng, id, secret);
-        call.enqueue(new Callback<Weather>() {
-            @Override
-            public void onResponse(Call<Weather> call, Response<Weather> response) {
-                if (response.isSuccessful()) {
-                    List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
 
-                    DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context));
-
-                    Log.e("Logging size:", forecast.size() + "");
-
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Weather> call, Throwable t) {
-                Log.e("Failed", t.getMessage());
-            }
-        });
-    }
     private void setupViewPager(ViewPager viewPager) {
         SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
         adapter.addFragment(new NOWFragment(), "Now");
@@ -160,22 +124,6 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
 
     }
-    public void getLocation() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1020);
-        } else {
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, location -> {
-                        if (location != null) {
-                            lat = location.getLatitude();
-                            lng = location.getLongitude();
-                            Log.e("My Location", lat + "," + lng);
-                        }
-                    });
-        }
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -206,37 +154,14 @@ public class MainActivity extends AppCompatActivity {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL)
                 .setSmallIcon(R.mipmap.sun_round)
-                .setContentTitle("You've been notified!")
+                .setContentTitle("Aeris Weather")
                 .setContentIntent(pendingIntent)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentText("This is your notification text.");
+                .setContentText("" );
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
-
-    public void networkCall() {
-        getLocation();
-        List<Periods> forcast = new ArrayList<>();
-        API api = retrofit.create(API.class);
-        Call<Weather> call = api.getForcast(lat + "," + lng, id, secret);
-        call.enqueue(new Callback<Weather>() {
-            @Override
-            public void onResponse(Call<Weather> call, Response<Weather> response) {
-                if (response.isSuccessful()) {
-                    List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
-                    Log.e("Logging size:", forcast.size() + "");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Weather> call, Throwable t) {
-                Log.e("Failed", t.getMessage());
-            }
-        });
-//        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-//                "WeatherDatabase").build();
-    }
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
 
@@ -268,5 +193,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public static String getId() {
+        return id;
+    }
+
+    public static double getLat() {
+        return lat;
+    }
+
+    public static double getLng() {
+        return lng;
+    }
+
+    public static String getSecret() {
+        return secret;
+    }
+
+    public static FusedLocationProviderClient getmFusedLocationClient() {
+        return mFusedLocationClient;
+    }
 }
 

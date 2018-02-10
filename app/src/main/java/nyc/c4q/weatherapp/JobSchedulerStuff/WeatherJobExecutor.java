@@ -19,7 +19,7 @@ public class WeatherJobExecutor extends AsyncTask<Void,Void,Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
-        mainActivity.setup();
+        //mainActivity.setup();
         Log.e("Doing Background","Runninggggggg");
         return null;
     }
