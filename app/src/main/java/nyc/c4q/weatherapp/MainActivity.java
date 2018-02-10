@@ -7,10 +7,8 @@ import android.arch.persistence.room.Room;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
-
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
-import android.location.Location;
 import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -24,8 +22,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import nyc.c4q.weatherapp.JobSchedulerStuff.WeatherJobService;
-import nyc.c4q.weatherapp.controller.WeatherRVAdapter;
-import nyc.c4q.weatherapp.database.Weather;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
 
 import android.app.NotificationManager;
@@ -40,16 +36,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import nyc.c4q.weatherapp.model.Periods;
-
 import nyc.c4q.weatherapp.model.Weathercoded;
 import nyc.c4q.weatherapp.network.API;
-import nyc.c4q.weatherapp.model.WeatherPOJO;
+import nyc.c4q.weatherapp.model.Weather;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -92,51 +86,15 @@ public class MainActivity extends AppCompatActivity {
 
         jobScheduler();
         setup();
-        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-                "WeatherDatabase").build();
         setupViews();
         scheduleAlarm();
+        retrieveWeather();
 
-        new Thread(() -> {
-            List<Weather> weatherList = App.get().getWeatherDatabase().weatherDao().getWeather();
-            boolean force = App.get().isForceUpdate();
-            if (force || weatherList.isEmpty()) {
-                retrieveWeather();
-            } else {
-                populateWeather(weatherList);
-            }
-        }).start();
     }
-
 
     private void retrieveWeather() {
-        List<Weather> weatherList = new ArrayList<>();
-
-        for(int i = 0; i < weatherList.size(); i++){
-
-            retrieveWeather();
-            populateWeather(weatherList);
-
-            //Adjust views
-            Weather weather = new Weather();
-            weather.setMintempf(weather.getMintempf());
-            weather.setMaxtempf(weather.getMaxtempf());
-            weather.setDatetimeiso(weather.getDatetimeiso());
-        }
-
-        // insert weatherList into database
-        App.get().getWeatherDatabase().weatherDao().insertAll(weatherList);
-
-        // disable flag for force update
-        App.get().setForceUpdate(false);
-
-        populateWeather(weatherList);
+        setup();
     }
-
-    private void populateWeather(final List<Weather> weatherList) {
-        runOnUiThread(() -> recyclerView.setAdapter(new WeatherRVAdapter(weatherList)));
-    }
-
 
     private void jobScheduler() {
         JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
@@ -160,20 +118,19 @@ public class MainActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         API api = retrofit.create(API.class);
-        Call<WeatherPOJO> call = api.getForcast(lat + "," + lng, id, secret);
-        call.enqueue(new Callback<WeatherPOJO>() {
+        Call<Weather> call = api.getForcast(lat + "," + lng, id, secret);
+        call.enqueue(new Callback<Weather>() {
             @Override
-            public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
+            public void onResponse(Call<Weather> call, Response<Weather> response) {
                 if (response.isSuccessful()) {
-                    List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
-                    List<Weathercoded> dayForcast = response.body().getResponse().get(0).getPeriods().get(2).getWeathercoded();
+                    List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
 
-                    Log.e("Logging size:", forcast.size() + "");
+                    Log.e("Logging size:", forecast.size() + "");
                 }
             }
 
             @Override
-            public void onFailure(Call<WeatherPOJO> call, Throwable t) {
+            public void onFailure(Call<Weather> call, Throwable t) {
                 Log.e("Failed", t.getMessage());
             }
         });
@@ -243,12 +200,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void networkCall() {
-       getLocation();
+        getLocation();
         API api = retrofit.create(API.class);
-        Call<WeatherPOJO> call = api.getForcast(lat + "," + lng, id, secret);
-        call.enqueue(new Callback<WeatherPOJO>() {
+        Call<Weather> call = api.getForcast(lat + "," + lng, id, secret);
+        call.enqueue(new Callback<Weather>() {
             @Override
-            public void onResponse(Call<WeatherPOJO> call, Response<WeatherPOJO> response) {
+            public void onResponse(Call<Weather> call, Response<Weather> response) {
                 if (response.isSuccessful()) {
                     List<Periods> forcast = response.body().getResponse().get(0).getPeriods();
                     Log.e("Logging size:", forcast.size() + "");
@@ -256,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<WeatherPOJO> call, Throwable t) {
+            public void onFailure(Call<Weather> call, Throwable t) {
 
                 Log.e("Failed", t.getMessage());
             }

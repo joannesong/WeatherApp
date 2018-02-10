@@ -6,8 +6,8 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 
-import nyc.c4q.weatherapp.database.Weather;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
+import nyc.c4q.weatherapp.model.Periods;
 
 /**
  * Created by C4Q on 2/8/18.
@@ -15,18 +15,18 @@ import nyc.c4q.weatherapp.database.WeatherDatabase;
 
 public class WeatherDataBaseViewModel extends AndroidViewModel {
 
-    private final List<Weather> weather;
+    private final List<Periods> periods;
 
     public WeatherDataBaseViewModel(@NonNull Application application) {
         super(application);
 
-        weather = WeatherDatabase
+        periods = WeatherDatabase
                 .getDatabase(getApplication())
                 .weatherDao()
-                .getWeather();
+                .getForecast();
     }
 
-    public List<Weather> getWeather(){
-        return weather;
+    public List<Periods> getWeather(){
+        return periods;
     }
 }

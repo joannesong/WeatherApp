@@ -6,7 +6,7 @@ import java.util.List;
  * Created by joannesong on 2/5/18.
  */
 
-public class WeatherPOJO {
+public class Weather {
 
     private List<Response> response;
     private boolean success;
