@@ -94,14 +94,14 @@ public class MainActivity extends AppCompatActivity {
         setup();
 //        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
 //                "WeatherDatabase").build();
-//        setupViews();
+        setupViews();
 //        networkCall();
 
-        DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context));
+        DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context),context);
         List<Periods> test= DatabaseInitializer.getall(WeatherDatabase.getDatabase(context));
 
 
-        Log.e("Test",test.size()+"");
+//        Log.e("Test",test.size()+"");
     }
 
     private void retrieveWeather() {
@@ -138,9 +138,6 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Weather> call, Response<Weather> response) {
                 if (response.isSuccessful()) {
                     List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
-
-                    DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context));
-
                     Log.e("Logging size:", forecast.size() + "");
 
                 }
@@ -268,5 +265,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        WeatherDatabase.destroyInstance();
+    }
 }
 

@@ -1,14 +1,20 @@
 package nyc.c4q.weatherapp.database;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import java.util.List;
 
 import nyc.c4q.weatherapp.MainActivity;
+import nyc.c4q.weatherapp.R;
 import nyc.c4q.weatherapp.model.Periods;
 import nyc.c4q.weatherapp.model.Response;
 import nyc.c4q.weatherapp.model.Weather;
@@ -28,9 +34,15 @@ public class DatabaseInitializer {
     private static final String id = "Mbfz6KHEyqiIF93hy5XRj";
     private static final String secret = "I7jQI5udlLdLO6N9XQ9mPzRRBppwaN8XznscuLNs";
 
-    public static void populateAsync(@NonNull final WeatherDatabase db) {
+    private static final int NOTIFICATION_ID = 555;
+    private static final String NOTIFICATION_CHANNEL = "C4Q Notifications";
+    private static Context context;
+
+    public static void populateAsync(@NonNull final WeatherDatabase db,Context con) {
         PopulateDbAsync task = new PopulateDbAsync(db);
         task.execute();
+        context= con.getApplicationContext();
+
     }
 
 //    public static void populateSync(@NonNull final WeatherDatabase db) {
@@ -40,19 +52,6 @@ public class DatabaseInitializer {
     private void add(final WeatherDatabase db, List<Periods> user) {
         db.weatherDao().insertAll(user);
     }
-
-
-
-//    private static void populateWithTestData(WeatherDatabase db) {
-//        Periods user = new Periods();
-//        user.setFirstName("Ajay");
-//        user.setLastName("Saini");
-//        user.setAge(25);
-//
-//
-//        List<Periods> userList = db.userDao().getAll();
-//        Log.d(DatabaseInitializer.TAG, "Rows Count: " + userList.size());
-//    }
 
 
     public static List<Periods> getall(final WeatherDatabase db) {
@@ -83,6 +82,16 @@ public class DatabaseInitializer {
                 public void onResponse(Call<Weather> call, retrofit2.Response<Weather> response) {
                     if (response.isSuccessful()) {
                         List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
+                        if(mDb.weatherDao().countEvents() != 0){
+
+                        }
+                        forecast.get(0).setAvgtempf(forecast.get(0).getAvgtempf());
+
+                        int hello=forecast.get(0).getAvgtempf();
+
+
+                        Log.e("testing",forecast.get(0).getSunrise()+"");
+
                         mDb.weatherDao().insertAll(forecast);
                         Log.e("Logging size:", forecast.size() + "");
 
@@ -96,5 +105,22 @@ public class DatabaseInitializer {
             return null;
         }
 
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            Intent intent = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
+                    .setSmallIcon(R.mipmap.sun_round)
+                    .setContentTitle("You've been notified!")
+                    .setContentIntent(pendingIntent)
+                    .setDefaults(NotificationCompat.DEFAULT_ALL)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setContentText("This is your notification text.");
+            notificationManager.notify(NOTIFICATION_ID, builder.build());
+
+        }
     }
 }

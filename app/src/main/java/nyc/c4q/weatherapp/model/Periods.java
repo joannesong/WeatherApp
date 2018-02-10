@@ -93,6 +93,7 @@ public class Periods {
     @ColumnInfo(name = "timestamp")
     private int timestamp;
 
+
     public int getId() {
         return id;
     }
@@ -137,9 +138,6 @@ public class Periods {
         return weatherprimary;
     }
 
-//    public List<Weathercoded> getWeathercoded() {
-//        return weatherCoded;
-//    }
     public String getWeather() {
         return weather;
     }
@@ -212,6 +210,8 @@ public class Periods {
         return timestamp;
     }
 
+
+
     public void setSunsetiso(String sunsetiso) {
         this.sunsetiso = sunsetiso;
     }
@@ -247,10 +247,6 @@ public class Periods {
     public void setWeatherprimary(String weatherprimary) {
         this.weatherprimary = weatherprimary;
     }
-//
-//    public void setWeatherCoded(List<Weathercoded> weatherCoded) {
-//        this.weatherCoded = weatherCoded;
-//    }
 
     public void setWeather(String weather) {
         this.weather = weather;
