@@ -1,12 +1,8 @@
 package nyc.c4q.weatherapp.database.presenter;
 
-import android.arch.persistence.room.Database;
+import android.content.Context;
 
-import com.google.android.gms.common.api.Api;
-
-import nyc.c4q.weatherapp.database.WeatherDao;
 import nyc.c4q.weatherapp.database.WeatherDatabase;
-import nyc.c4q.weatherapp.network.API;
 import retrofit2.Retrofit;
 
 /**
@@ -14,20 +10,20 @@ import retrofit2.Retrofit;
  */
 
 public class WeatherDatabasePresenter {
-//
-//    // a reference to your room database. assume it has a method something like: database.addData(Data data)
-//    private WeatherDatabase weatherDatabase;
-//
-//    // a reference to your retrofit api. assume it has a method something like: api.getData()
-//    private Retrofit retrofit;
-//
-//    public WeatherDatabasePresenter(WeatherDatabase weatherDatabase, Retrofit retrofit) {
-//        this.weatherDatabase = weatherDatabase;
-//        this.retrofit = retrofit;
-//    }
-//
-//    public void fetchAndStoreData() {
-//        WeatherDatabase weatherDatabase = WeatherDatabase.getDatabase();// pretend there is an actual enqueue/whatever call that gets data from the api
-//        weatherDao.getWeather();
-//    }
+
+    // a reference to your room database. assume it has a method something like: database.addData(Data data)
+    private WeatherDatabase weatherDatabase;
+
+    // a reference to your retrofit api. assume it has a method something like: api.getData()
+    private Retrofit retrofit;
+
+    public WeatherDatabasePresenter(WeatherDatabase weatherDatabase, Retrofit retrofit) {
+        this.weatherDatabase = weatherDatabase;
+        this.retrofit = retrofit;
+    }
+
+    public void fetchAndStoreData(Context context) {
+        WeatherDatabase weatherDatabase = WeatherDatabase.getDatabase(context);// pretend there is an actual enqueue/whatever call that gets data from the api
+        weatherDatabase.weatherDao();
+    }
 }

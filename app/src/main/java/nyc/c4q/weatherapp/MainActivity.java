@@ -97,15 +97,15 @@ public class MainActivity extends AppCompatActivity {
         networkCall();
         scheduleAlarm();
 
-//        new Thread(() -> {
-//            List<Weather> weatherList = App.get().getWeatherDatabase().weatherDao().getWeather();
-//            boolean force = App.get().isForceUpdate();
-//            if (force || weatherList.isEmpty()) {
-//                retrieveWeather();
-//            } else {
-//                populateWeather(weatherList);
-//            }
-//        }).start();
+        new Thread(() -> {
+            List<Weather> weatherList = App.get().getWeatherDatabase().weatherDao().getWeather();
+            boolean force = App.get().isForceUpdate();
+            if (force || weatherList.isEmpty()) {
+                retrieveWeather();
+            } else {
+                populateWeather(weatherList);
+            }
+        }).start();
     }
 
 
