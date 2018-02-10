@@ -124,7 +124,8 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Weather> call, Response<Weather> response) {
                 if (response.isSuccessful()) {
                     List<Periods> forecast = response.body().getResponse().get(0).getPeriods();
-
+                    WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
+                            "WeatherDatabase").build();
                     Log.e("Logging size:", forecast.size() + "");
                 }
             }
@@ -218,9 +219,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("Failed", t.getMessage());
             }
         });
-
-        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
-                "WeatherDatabase").build();
     }
 
     private class SectionsPageAdapter extends FragmentPagerAdapter {
