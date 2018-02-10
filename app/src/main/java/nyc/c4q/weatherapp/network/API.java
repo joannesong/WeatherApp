@@ -12,10 +12,10 @@ import retrofit2.http.Query;
 
 public interface API {
 
-    @GET("/forecasts/{longlat}")
+
+    @GET("/forecasts/{longlat}?filter=daynight&")
     Call<Weather> getForcast(@Path( "longlat")String longlat, @Query("client_id") String client_id, @Query("client_secret") String secret);
 
     Call<Weather> getForcast(String id, String secret);
 
-//    42.25,-95.25?
 }
