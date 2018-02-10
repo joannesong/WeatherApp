@@ -12,20 +12,16 @@ import nyc.c4q.weatherapp.model.Periods;
  * Created by C4Q on 2/6/18.
  */
 
-@Database(entities = {Periods.class}, version = 2, exportSchema = false)
+@Database(entities = {Periods.class}, version = 6, exportSchema = false)
 public abstract class WeatherDatabase extends RoomDatabase{
 
     private static WeatherDatabase INSTANCE;
-    public static Migration MIGRATION_1_2;
-
-    public abstract WeatherDao weatherDao();
 
     public static WeatherDatabase getDatabase(Context context) {
         if (INSTANCE == null) {
             INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                     WeatherDatabase.class, "WeatherDatabase")
                     .allowMainThreadQueries()
-                    .addMigrations(MIGRATION_1_2)
                     .build();
         }
         return INSTANCE;
@@ -34,5 +30,7 @@ public abstract class WeatherDatabase extends RoomDatabase{
     public static void destroyInstance(){
         INSTANCE =  null;
     }
+
+    public abstract WeatherDao weatherDao();
 
 }

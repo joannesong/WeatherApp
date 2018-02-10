@@ -28,7 +28,6 @@ public class App extends Application {
         super.onCreate();
 
         weatherDatabase = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class, DATABASE_NAME)
-                .addMigrations(weatherDatabase.MIGRATION_1_2)
                 .build();
 
         INSTANCE = this;

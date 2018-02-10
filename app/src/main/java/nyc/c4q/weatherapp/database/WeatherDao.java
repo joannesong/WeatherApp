@@ -20,8 +20,8 @@ public interface WeatherDao {
     @Query("SELECT * FROM weatherdata")
     List<Periods> getForecast();
 
-    @Query("SELECT * FROM weatherdata WHERE id LIKE :id LIMIT 1")
-    Periods findById(int id);
+    @Query("SELECT * FROM weatherdata WHERE id IN(:id)")
+    List<Periods> findById(int[] id);
 
     @Insert
     void insertAll(List<Periods> forecast);
