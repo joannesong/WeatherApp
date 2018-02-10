@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity{
                 newSet.add((char) w.getId());
                 newSet.add((char) w.getMintempf());
                 newSet.add((char) w.getMaxtempf());
-                newSet.add(w.getDatetimeiso().charAt(0));
             }
             newList = new ArrayList<>();
             newList.addAll(newSet);
