@@ -85,6 +85,13 @@ public class DatabaseInitializer {
                         if(mDb.weatherDao().countEvents() != 0){
 
                         }
+                        forecast.get(0).setAvgtempf(forecast.get(0).getAvgtempf());
+
+                        int hello=forecast.get(0).getAvgtempf();
+
+
+                        Log.e("testing",forecast.get(0).getSunrise()+"");
+
                         mDb.weatherDao().insertAll(forecast);
                         Log.e("Logging size:", forecast.size() + "");
 

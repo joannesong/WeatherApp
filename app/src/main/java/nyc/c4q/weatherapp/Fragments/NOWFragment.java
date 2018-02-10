@@ -57,10 +57,10 @@ public class NOWFragment extends Fragment {
 
 
         Log.e("Test Size", test.size() + "");
-//        Log.e("Test Size", test.get(0).getAvgtempf() + "");
-//        Log.e("Test Size", test.get(0).getWeather() + "");
-//        Log.e("Test Size", test.get(0).getWeatherprimary() + "");
-//        Log.e("Test Size", test.get(0).getIcon() + "");
+        Log.e("Test Size", test.get(1).getAvgtempf() + "");
+        Log.e("Test Size", test.get(0).getWeather() + "");
+        Log.e("Test Size", test.get(0).getWeatherprimary() + "");
+        Log.e("Test Size", test.get(0).getIcon() + "");
 
 
 //        text.setText(test.get(0).getWeather());
