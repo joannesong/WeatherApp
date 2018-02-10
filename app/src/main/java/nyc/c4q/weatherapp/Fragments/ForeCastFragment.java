@@ -8,7 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TimePicker;
 
+import java.util.List;
+
 import nyc.c4q.weatherapp.R;
+import nyc.c4q.weatherapp.database.DatabaseInitializer;
+import nyc.c4q.weatherapp.database.WeatherDatabase;
+import nyc.c4q.weatherapp.model.Periods;
 
 
 /**

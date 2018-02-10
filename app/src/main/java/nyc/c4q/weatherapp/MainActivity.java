@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         setup();
 //        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
 //                "WeatherDatabase").build();
-//        setupViews();
+        setupViews();
 //        networkCall();
 
         DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context));

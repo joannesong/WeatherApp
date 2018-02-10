@@ -107,6 +107,7 @@
                             android:orientation="horizontal">
 
                             <TextView
+                                android:id="@+id/tonight_temp"
                                 android:layout_width="0dp"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1.1"
@@ -123,6 +124,7 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/weatherprime"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="4"
@@ -141,25 +143,7 @@
                     android:layout_weight=".5"
                     android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom"
-                        android:orientation="vertical">
 
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/winds"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:text="@string/precip"/>
-                    </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -222,6 +206,7 @@
                             android:orientation="horizontal">
 
                             <TextView
+                                android:id="@+id/tomorrow_temp"
                                 android:layout_width="0dp"
                                 android:layout_height="match_parent"
                                 android:layout_weight="1.1"
@@ -239,6 +224,7 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/tomorrow_prime"
                             android:layout_width="match_parent"
                             android:layout_height="0dp"
                             android:layout_weight="4"
