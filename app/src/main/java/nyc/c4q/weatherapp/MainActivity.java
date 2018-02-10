@@ -86,17 +86,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getLocation();
+//        getLocation();
         context = getApplicationContext();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        sendNotification();
-        jobScheduler();
+//        sendNotification();
+//        jobScheduler();
         setup();
 //        WeatherDatabase wdb = Room.databaseBuilder(getApplicationContext(), WeatherDatabase.class,
 //                "WeatherDatabase").build();
-        setupViews();
-        networkCall();
+//        setupViews();
+//        networkCall();
 
+        DatabaseInitializer.populateAsync(WeatherDatabase.getDatabase(context));
+        List<Periods> test= DatabaseInitializer.getall(WeatherDatabase.getDatabase(context));
+
+
+        Log.e("Test",test.size()+"");
     }
 
     private void retrieveWeather() {
